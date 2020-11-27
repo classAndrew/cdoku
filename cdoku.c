@@ -16,60 +16,45 @@ int main()
  * 5. Transpose (rotate)
  * These 5 methods will generate 9! * 2^6 * 2 * 2 * 2 * 4 varations from one puzzle
  */
+
 // Populate the board in sudoku-style using the shift way
 board generate_board(void) 
 {
     board b;
-    
-    // 0-Initialize everything
+    // rotate left by constants according to row
+    static const int shift[9] = {0, 3, 6, 7, 1, 4, 5, 8, 2};
     for (int i = 0; i < BSIZE; i++) 
     {
         for (int j = 0; j < BSIZE; j++) 
         {
-            b.taken_row[i][j] = 0;
-            b.taken_col[i][j] = 0;
-            b.taken_cell[i][j] = 0; 
-            b.board[i][j] = 0;
+            int offset = j-shift[i];
+            // Wrap around if offset is less than 0
+            offset += (offset < 0) * 9; 
+            b.board[i][offset] = j;
+            // Initialize everything while we're at it
+            b.taken_row[i][j] = 1;
+            b.taken_col[offset][j] = 1;
+            // find cell number. Probably need a macro sooner or later 
+            int cell_n = (i/BSQRTSIZE)*BSQRTSIZE+(offset/BSQRTSIZE); 
+            b.taken_cell[cell_n][j] = 1; 
         }
     } 
-    // Begin filling board values while checking for collision 
-    for (int i = 0; i < BSIZE; i++) 
-    {
-        for (int j = 0; j < BSIZE; j++) 
-        {
-            // A better random algorithm would be to 'choose out of a bag'
-            // However, such algorithm will run in O(BSIZE^2) per cell.
-            int rand = random()*9.0/RAND_MAX + 1;
-            board *board_p = &b;
-            b.board[i][j] = rand; 
-            while (is_conflict(board_p, i, j)) 
-            {
-                rand = random()*9.0/RAND_MAX+1;
-                b.board[i][j] = rand; 
-            }       
-            b.taken_row[i][rand] = 1;
-            b.taken_col[j][rand] = 1;
-            int cell_n = (i/BSQRTSIZE)*BSQRTSIZE+(j/BSQRTSIZE); 
-            b.taken_cell[cell_n][rand] = 1;
-            print_board(board_p);
-            putchar('\n'); 
-        }
-    }
-
+    
     return b;
 }
 
 // Check if there is the same number in the row, column, or 9-cell
+// This is done by counting number of some number at [r][c] if > 3
+// It has to be > 3 because 3 is already the number itself in row, col, and cell
 char is_conflict(board *b, int r, int c) 
 {
     int n = b->board[r][c];
     int cell_n = (r/BSQRTSIZE)*BSQRTSIZE+(c/BSQRTSIZE); 
     
-    char same_incell = b->taken_cell[cell_n][n];
-    char same_inrow = b->taken_row[r][n];
-    char same_incol = b->taken_col[c][n];
-    
-    return same_incell || same_inrow || same_incol;
+    int incell = b->taken_cell[cell_n][n];
+    int inrow = b->taken_row[r][n];
+    int incol = b->taken_col[c][n];
+    return incell + inrow + incol > 3; 
 }
 
 // Just print all the numbers on the board

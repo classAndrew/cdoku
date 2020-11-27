@@ -9,9 +9,11 @@
 typedef struct board_t 
 {
     int board[BSIZE][BSIZE];
-    char taken_cell[BSIZE][BSIZE];
-    char taken_row[BSIZE][BSIZE];
-    char taken_col[BSIZE][BSIZE];
+    // The outer index is the cell, column, or row number. 
+    // The inner index is the number e.g. taken_row[0][8] counts number of 8s in the 0th row
+    int taken_cell[BSIZE][BSIZE];
+    int taken_row[BSIZE][BSIZE];
+    int taken_col[BSIZE][BSIZE];
 } board;
 
 board generate_board(void);
