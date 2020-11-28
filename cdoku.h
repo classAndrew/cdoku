@@ -1,7 +1,12 @@
 #ifndef CDOKU_H__
 #define CDOKU_H__
+
 #define BSIZE 9
+#define BSIZE_D 9.0
 #define BSQRTSIZE 3
+
+#define cell_n(i, j) ((i/BSQRTSIZE)*BSQRTSIZE + j/BSQRTSIZE)
+
 #include <stdlib.h>
 
 // board_t struct containing information of the resulting board
@@ -19,4 +24,5 @@ typedef struct board_t
 board generate_board(void);
 char is_conflict(board *b, int r, int c);
 void print_board(board *b); 
+void remove_cells(board *b, int n);
 #endif

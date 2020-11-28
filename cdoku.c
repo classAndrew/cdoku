@@ -4,6 +4,7 @@
 int main() 
 {
     board b = generate_board();
+    remove_cells(&b, 3);    
     print_board(&b);
 }
 /*
@@ -35,13 +36,36 @@ board generate_board(void)
             b.taken_row[i][j] = 1;
             b.taken_col[offset][j] = 1;
             // find cell number. Probably need a macro sooner or later 
-            int cell_n = (i/BSQRTSIZE)*BSQRTSIZE+(offset/BSQRTSIZE); 
-            b.taken_cell[cell_n][j] = 1; 
+            int cell_num = (i/BSQRTSIZE)*BSQRTSIZE+(offset/BSQRTSIZE); 
+            b.taken_cell[cell_num][j] = 1; 
         }
     } 
     
     return b;
 }
+
+// Remove n individual cells randomly
+// -1 marks an empty cell
+void remove_cells(board *b, int n) 
+{
+    char removing[BSIZE][BSIZE] = {};
+    
+    while (n) 
+    {
+        int i = random()*BSIZE_D/RAND_MAX;
+        int j = random()*BSIZE_D/RAND_MAX;
+        // if we have already removed it, try again. 
+        if (removing[i][j]) continue;
+        removing[i][j] = 1;
+        // empty the cell and update counter values
+        int digit = b->board[i][j]; 
+        b->taken_row[i][digit]--;
+        b->taken_col[j][digit]--;
+        b->taken_cell[cell_n(i, j)][digit]--; 
+        b->board[i][j] = -1;
+        n--;
+    }
+} 
 
 // Check if there is the same number in the row, column, or 9-cell
 // This is done by counting number of some number at [r][c] if > 3
@@ -54,18 +78,40 @@ char is_conflict(board *b, int r, int c)
     int incell = b->taken_cell[cell_n][n];
     int inrow = b->taken_row[r][n];
     int incol = b->taken_col[c][n];
+    
     return incell + inrow + incol > 3; 
 }
 
 // Just print all the numbers on the board
 void print_board(board *b) 
 {
-    for (int i = 0; i < BSIZE; i++)
+    for (int l = 0; l < BSQRTSIZE; l++)
     {
-        for (int j = 0; j < BSIZE; j++) 
+        for (int i = l*BSQRTSIZE; i < BSQRTSIZE*(l+1); i++)
         {
-            printf("%d ", b->board[i][j]);
+            for (int k = 0; k < BSQRTSIZE; k++) 
+            {
+                for (int j = k*BSQRTSIZE; j < (k+1)*BSQRTSIZE; j++) 
+                {
+                    b->board[i][j] == -1 ? printf(" ") : printf("%d", b->board[i][j]);
+                    if (j < (k+1)*BSQRTSIZE-1) putchar(' '); 
+                }
+                if (k < BSQRTSIZE-1) putchar('|'); 
+            }
+            putchar('\n');
+        } 
+
+        if (l < BSQRTSIZE-1) 
+        {
+            for (int j = 0; j < BSQRTSIZE; j++) 
+            {
+                for (int i = 0; i < BSQRTSIZE*2-1; i++)
+                {
+                    putchar('-');         
+                }
+                if (j < BSQRTSIZE-1) putchar('+');
+            }
+            putchar('\n');
         }
-        putchar('\n');
     } 
 }
