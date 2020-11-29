@@ -1,13 +1,14 @@
 #ifndef CDOKU_H__
 #define CDOKU_H__
 
-#define BSIZE 9
+#define BSIZE 9 
 #define BSIZE_D 9.0
 #define BSQRTSIZE 3
 
 #define cell_n(i, j) ((i/BSQRTSIZE)*BSQRTSIZE + j/BSQRTSIZE)
 
 #include <stdlib.h>
+#include <stdio.h>
 
 // board_t struct containing information of the resulting board
 // holds row column and 9-cell lookup
